@@ -64,12 +64,12 @@ void setup() {
 
 void draw() {
   background(255);
-  image(pile, 0+20, 0+40, 140, 140);
-  image(toby, 0+20, 150+40, 140, 140);
-  image(satin, 150+20, 0+40, 140, 140);
-  image(fleece, 150+20, 150+40, 140, 140);
-  image(microfiber, 300+20, 0+40, 140, 140);
-  image(organdy, 300+20, 150+40, 140, 140);
+  image(pile, 0 + 20, 0 + 40, 140, 140);
+  image(toby, 0 + 20, 150 + 40, 140, 140);
+  image(satin, 150 + 20, 0 + 40, 140, 140);
+  image(fleece, 150 + 20, 150 + 40, 140, 140);
+  image(microfiber, 300 + 20, 0 + 40, 140, 140);
+  image(organdy, 300 + 20, 150 + 40, 140, 140);
   
   String ono_text = "";
   String waveType = "";
@@ -205,18 +205,18 @@ void keyPressed() {
       amp = 300;
     println("Freq:" + freq + " Vol:" + amp + " Speed:" + cntrspeed);
     myPort.write(0x2F);
-  } else if(keyCode == LEFT){
-    freq -= 5;
-    if(freq < 0)
-      freq = 0;
-    println("Freq:" + freq + " Vol:" + amp + " Speed:" + cntrspeed);
-    myPort.write(0x7B);
   } else if(keyCode == RIGHT){
     freq += 5;
     if(freq > 500)
       freq = 500;
     println("Freq:" + freq + " Vol:" + amp + " Speed:" + cntrspeed);
     myPort.write(0x7A);
+  } else if(keyCode == LEFT){
+    freq -= 5;
+    if(freq < 0)
+      freq = 0;
+    println("Freq:" + freq + " Vol:" + amp + " Speed:" + cntrspeed);
+    myPort.write(0x7B);
   } else if (key == ESC){
     for(int i=0; i<30; i++)
     myPort.write(0x2E);
@@ -227,32 +227,32 @@ void keyPressed() {
 void mouseClicked(){
   //クリックすると、ここの処理が実行
   //マウスの位置情報を取得　mouseX, mouseY
-  if(mouseX >= 0+20 && mouseX <= 160 && mouseY >= 0+40 && mouseY <= 180){
+  if(mouseX >= 0 + 20 && mouseX <= 160 && mouseY >= 0 + 40 && mouseY <= 180){
     select_num = 1;
     println ("Mouse Click");
     myPort.write(0x41);
     Mode = 0x41;
-  }else if(mouseX >= 0+20 && mouseX <= 160 && mouseY >= 150+40 && mouseY <= 330){
+  }else if(mouseX >= 0 + 20 && mouseX <= 160 && mouseY >= 150 + 40 && mouseY <= 330){
     select_num = 2;
     println ("Mouse Click2");
     myPort.write(0x42);
     Mode = 0x42;
-  }else if(mouseX >= 150+20 && mouseX <= 340 && mouseY >= 0+40 && mouseY <= 180){
+  }else if(mouseX >= 150 + 20 && mouseX <= 340 && mouseY >= 0 + 40 && mouseY <= 180){
     select_num = 3;
     println ("Mouse Click3");
     myPort.write(0x43);
     Mode = 0x43;
-  }else if(mouseX >= 150+20 && mouseX <= 340 && mouseY >= 150+40 && mouseY <= 330){
+  }else if(mouseX >= 150 + 20 && mouseX <= 340 && mouseY >= 150 + 40 && mouseY <= 330){
     select_num = 4;
     println ("Mouse Click4");
     myPort.write(0x44);
     Mode = 0x44;
-  }else if(mouseX >= 300+20 && mouseX <= 460 && mouseY >= 0+40 && mouseY <= 180){
+  }else if(mouseX >= 300 + 20 && mouseX <= 460 && mouseY >= 0 + 40 && mouseY <= 180){
     select_num = 5;
     println ("Mouse Click5");
     myPort.write(0x45);
     Mode = 0x45;
-  }else if(mouseX >= 300+20 && mouseX <= 460 && mouseY >= 150+40 && mouseY <= 330){
+  }else if(mouseX >= 300 + 20 && mouseX <= 460 && mouseY >= 150 + 40 && mouseY <= 330){
     select_num = 6;
     println ("Mouse Click6");
     myPort.write(0x46);
