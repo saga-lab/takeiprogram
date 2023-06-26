@@ -20,12 +20,12 @@ BusOut myleds(LED1, LED2, LED3, LED4);
 
 // stimulation mode
 #define DA_TEST 0xFA //sinusoidal wave mode to test DA
-#define Zara 0x41
-#define Gotsu 0x42
-#define Tsubu 0x43
-#define Gowa 0x44
-#define Tsuru 0x45
-#define Jori 0x46
+#define pile 0x41
+#define doby 0x42
+#define satin 0x43
+#define fleece 0x44
+#define microfiber 0x45
+#define organdy 0x46
 int Mode = DA_TEST;
 
 const int ELECTRODE_NUM = 16;
@@ -84,11 +84,11 @@ void SN74LV595AllScan()
     int ii, pin;
 
     SN74LV595_RCLK = 0;
-    for (int i = 1; i < ELECTRODE_NUM+1; i++) {
-        SN74LV595_DIN = ((twod_stim_pattern[i] ==1)?1:0);
+    for (int i = 1; i < ELECTRODE_NUM + 1; i++) {
+        SN74LV595_DIN = ((twod_stim_pattern[i] == 1) ? 1 : 0);
         SN74LV595_CLK = 1;
         SN74LV595_CLK = 0;
-        SN74LV595_DIN = ((twod_stim_pattern[i] ==1)?0:1);
+        SN74LV595_DIN = ((twod_stim_pattern[i] == 1) ? 0 : 1);
         SN74LV595_CLK = 1;
         SN74LV595_CLK = 0;
     }
@@ -160,37 +160,37 @@ void SerialReceiveInterrupt()
     if (rcv == DA_TEST) {
         Mode = DA_TEST;
         myleds = 1;
-    } else if (rcv == Zara) {
+    } else if (rcv == pile) {
         //freq = 180.0;
-        Mode = Zara;
+        Mode = pile;
         myleds = 2;
-    } else if (rcv == Gowa) {
-        //freq = 50.0;
-        Mode = Gowa;
-        myleds = 2;
-    } else if (rcv == Tsuru) {
-        //freq = 440.0;
-        Mode = Tsuru;
-        myleds = 2;
-    } else if (rcv == Gotsu) {
+    } else if (rcv == doby) {
         //freq = 20.0;
-        Mode = Gotsu;
+        Mode = doby;
         myleds = 2;
-    } else if (rcv == Tsubu) {
+    } else if (rcv == satin) {
         //freq = 12.0;
-        delta_flag=false;
-        delta_oldflag=false;
-        Mode = Tsubu;
+        delta_flag = false;
+        delta_oldflag = false;
+        Mode = satin;
         myleds = 2;
-    } else if (rcv == Jori) {
+    } else if (rcv == fleece) {
+        //freq = 50.0;
+        Mode = fleece;
+        myleds = 2;
+    } else if (rcv == microfiber) {
+        //freq = 440.0;
+        Mode = microfiber;
+        myleds = 2;
+    } else if (rcv == organdy) {
         //freq = 125.0;
-        delta_flag=false;
-        delta_oldflag=false;
-        Mode = Jori;
+        delta_flag = false;
+        delta_oldflag = false;
+        Mode = organdy;
         myleds = 2;
     } else if(rcv == 0x2E) {
         amp -= 10.0;
-        if(amp <0.0)
+        if(amp < 0.0)
             amp = 0.0;
     } else if(rcv == 0x2F) {
         amp += 10.0;
@@ -269,16 +269,27 @@ int main()
         if (Mode == DA_TEST) {
             t = (double)timer.read_us() * 0.000001;
 			AD = DAAD((short)(200.0 * (1.0 + sin(2.0 * 3.1415926 * freq * t))));
-        } else if (Mode == Zara) {
+        } else if (Mode == pile) {
             AD = DAAD((short)(amp * (1.0 + sin(2.0 * 3.1415926 * freq * cntrspeed))));
             prevmode = Mode;
-        } else if (Mode == Gowa) {
+        } else if (Mode == doby) {
+            int d = (int)(cntrspeed * 100 * freq) % 100;
+            double dd = (double)d / 100;
+            dd *= 2 * amp;
+            if(dd > 600)
+                dd = 600;
+            AD = DAAD((short)dd);
+            prevmode = Mode;
+        } else if (Mode == satin) {
+            AD = DAAD((short)(amp * (1.0 + sin(2.0 * 3.1415926 * freq * cntrspeed)))); 
+            prevmode = Mode;
+        } else if (Mode == fleece) {
             if(sin(2.0 * 3.1415926 * freq * cntrspeed) > 0.0)
                 AD = DAAD((short)amp * 2);
             else
                 AD = DAAD((short)0);
             prevmode = Mode;
-        } else if (Mode == Tsuru) {
+        } else if (Mode == microfiber) {
             if(sin(2.0 * 3.1415926 * freq * cntrspeed) > 0.995)
                 delta_flag = true;
             else
@@ -315,24 +326,7 @@ int main()
             delta_oldflag = delta_flag;
 
             prevmode = Mode;
-        } else if (Mode == Gowa) {
-            if(sin(2.0 * 3.1415926 * freq * cntrspeed) > 0.0)
-                AD = DAAD((short)amp * 2);
-            else
-                AD = DAAD((short)0);
-            prevmode = Mode;
-        } else if (Mode == Gotsu) {
-            int d = (int)(cntrspeed * 100 * freq) % 100;
-            double dd = (double)d / 100;
-            dd *= 2 * amp;
-            if(dd > 600)
-                dd = 600;
-            AD = DAAD((short)dd);
-            prevmode = Mode;
-        } else if (Mode == Tsubu) {
-            AD = DAAD((short)(amp * (1.0 + sin(2.0 * 3.1415926 * freq * cntrspeed)))); 
-            prevmode = Mode;
-        } else if (Mode == Jori) {
+        } else if (Mode == organdy) {
             if(sin(2.0 * 3.1415926 * freq * cntrspeed) > 0.995) 
                 delta_flag = true;
             else
