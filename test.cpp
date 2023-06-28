@@ -36,11 +36,8 @@ short twod_stim_pattern[ELECTRODE_NUM] = { 0 };
 
 double freq = 0.0;
 double amp = 0.0;
-double fc = 100.0;
-double fs = 50.0;
-double df = 100.0;
+
 Timer timer;
-int haha = 1;
 
 bool AccessDeny = false;
 bool trian = true;
