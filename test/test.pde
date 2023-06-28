@@ -21,7 +21,7 @@ int Mode = DA_TEST;
 final int ELECTRODE_NUM = 16;
 int[] Impedance = new int[ELECTRODE_NUM];
 int[] StimPattern = new int[ELECTRODE_NUM];
-int[] TwoDStimPattern = new int[ELECTRODE_NUM+1];
+int[] TwoDStimPattern = new int[ELECTRODE_NUM + 1];
 
 //graphical attributes
 final int WINDOW_SIZE_X = 400;
@@ -29,16 +29,16 @@ final int WINDOW_SIZE_Y = 400;
 final int X_OFFSET = 10;
 final int Y_OFFSET = 10;
 final int BAR_WIDTH = 10;
+
 double freq = 0.0;
 int amp = 0;
-double fc = 100.0;
-double fs = 50.0;
-double df = 100.0;
+float cntrspeed = 0.0;
+
 int select_num = 0;
 int freq_num = 23;
+
 ControlP5 Button;
 PImage toby, pile, satin, fleece, microfiber, organdy, select;
-float cntrspeed = 0.0;
 
 void settings() {
   size(1400, 800); 
@@ -164,7 +164,7 @@ void draw() {
         text("z: " + vz, 700, 90);
         text("speed: " + speed, 700, 110);
         
-        ellipse(finger.tipPosition().getX()+(width/2) + 300, (height*2/3) - finger.tipPosition().getY() + 100, 5, 5);
+        ellipse(finger.tipPosition().getX() + (width / 2) + 300, (height * 2 / 3) - finger.tipPosition().getY() + 100, 5, 5);
         
         //speedをバイト配列に変換
         byte[] cntr = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(speed).array();
