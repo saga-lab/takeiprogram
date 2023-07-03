@@ -190,7 +190,7 @@ void keyPressed() {
   if (key == '1') {
     println("DA test using sine wave");
     myPort.write(DA_TEST);
-    myPort.write(40);
+    myPort.write(0xFA);
     println("Freq:" + freq + " Vol:" + amp + " Speed:" + cntrspeed);
     Mode = DA_TEST;
   } else if(keyCode == DOWN) {
@@ -198,28 +198,28 @@ void keyPressed() {
     if(amp < 0)
       amp = 0;
     println("Freq:" + freq + " Vol:" + amp + " Speed:" + cntrspeed);
-    myPort.write(0x2E);
+    myPort.write('g');
   } else if(keyCode == UP){
     amp += 10;
     if(amp > 300)
       amp = 300;
     println("Freq:" + freq + " Vol:" + amp + " Speed:" + cntrspeed);
-    myPort.write(0x2F);
+    myPort.write('h');
   } else if(keyCode == RIGHT){
     freq += 5;
     if(freq > 500)
       freq = 500;
     println("Freq:" + freq + " Vol:" + amp + " Speed:" + cntrspeed);
-    myPort.write(0x7A);
+    myPort.write('i');
   } else if(keyCode == LEFT){
     freq -= 5;
     if(freq < 0)
       freq = 0;
     println("Freq:" + freq + " Vol:" + amp + " Speed:" + cntrspeed);
-    myPort.write(0x7B);
+    myPort.write('j');
   } else if (key == ESC){
     for(int i=0; i<30; i++)
-    myPort.write(0x2E);
+    myPort.write('k');
     exit();
   }
 }
@@ -230,38 +230,38 @@ void mouseClicked(){
   if(mouseX >= 0 + 20 && mouseX <= 160 && mouseY >= 0 + 40 && mouseY <= 180){
     select_num = 1;
     println ("Mouse Click");
-    myPort.write(0x41);
-    Mode = 0x41;
+    myPort.write('a');
+    Mode = 'a';
   }else if(mouseX >= 0 + 20 && mouseX <= 160 && mouseY >= 150 + 40 && mouseY <= 330){
     select_num = 2;
     println ("Mouse Click2");
-    myPort.write(0x42);
-    Mode = 0x42;
+    myPort.write('b');
+    Mode = 'b';
   }else if(mouseX >= 150 + 20 && mouseX <= 340 && mouseY >= 0 + 40 && mouseY <= 180){
     select_num = 3;
     println ("Mouse Click3");
-    myPort.write(0x43);
-    Mode = 0x43;
+    myPort.write('c');
+    Mode = 'c';
   }else if(mouseX >= 150 + 20 && mouseX <= 340 && mouseY >= 150 + 40 && mouseY <= 330){
     select_num = 4;
     println ("Mouse Click4");
-    myPort.write(0x44);
-    Mode = 0x44;
+    myPort.write('d');
+    Mode = 'd';
   }else if(mouseX >= 300 + 20 && mouseX <= 460 && mouseY >= 0 + 40 && mouseY <= 180){
     select_num = 5;
     println ("Mouse Click5");
-    myPort.write(0x45);
-    Mode = 0x45;
+    myPort.write('e');
+    Mode = 'e';
   }else if(mouseX >= 300 + 20 && mouseX <= 460 && mouseY >= 150 + 40 && mouseY <= 330){
     select_num = 6;
     println ("Mouse Click6");
-    myPort.write(0x46);
-    Mode = 0x46;
+    myPort.write('f');
+    Mode = 'f';
   }
   else{
     select_num = 0;
     println ("Copymode");
-    myPort.write(0x40);
-    Mode = 0x40;
+    myPort.write('l');
+    Mode = 'l';
   }
 }
