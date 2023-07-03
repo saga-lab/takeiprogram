@@ -20,12 +20,12 @@ BusOut myleds(LED1, LED2, LED3, LED4);
 
 // stimulation mode
 #define DA_TEST 0xFA //sinusoidal wave mode to test DA
-#define pile 0x41
-#define doby 0x42
-#define satin 0x43
-#define fleece 0x44
-#define microfiber 0x45
-#define organdy 0x46
+#define pile 'a'
+#define doby 'b'
+#define satin 'c'
+#define fleece 'd'
+#define microfiber 'e'
+#define organdy 'f'
 int Mode = DA_TEST;
 
 const int ELECTRODE_NUM = 16;
@@ -185,23 +185,42 @@ void SerialReceiveInterrupt()
         delta_oldflag = false;
         Mode = organdy;
         myleds = 2;
-    } else if(rcv == 0x2E) {
+    } else if(rcv == 'g') {
         amp -= 10.0;
         if(amp <0.0)
             amp = 0.0;
-    } else if(rcv == 0x2F) {
+    } else if(rcv == 'h') {
         amp += 10.0;
         if(amp > 500.0)
             amp = 500.0;
-    } else if(rcv == 0x7A) {
+    } else if(rcv == 'i') {
         freq += 5.0;
         if(freq > 500.0)
             freq = 500.0;
-    } else if(rcv == 0x7B) {
+    } else if(rcv == 'j') {
         freq -= 5.0;
         if(freq < 0.0)
             freq = 0.0;
-    }
+    } 
+}
+
+float SerialLeap()
+{
+    float speed = 0.0;
+    char leap[4];
+
+    leap[0] = getchar();
+    leap[1] = getchar();
+    leap[2] = getchar();
+    leap[3] = getchar();
+
+    // leapをfloat型に変換
+    float receivedSpeed;
+    memcpy(&receivedSpeed, leap, sizeof(float));
+
+    speed = receivedSpeed;
+    
+    return speed;
 }
 
 int main()
@@ -210,6 +229,8 @@ int main()
     char rcv;
     int i;
     short AD;
+
+    float cntrspeed = 0.0;
 
     int prevmode;
 
@@ -223,6 +244,10 @@ int main()
         wait(0.05);
     }
     myleds = 1;
+
+    while (1) {
+        cntrspeed = SerialLeap();
+    }
 
     while (1) {
         if (Mode == DA_TEST) {
