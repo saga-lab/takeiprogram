@@ -1,32 +1,29 @@
 #include "mbed.h"
 #include <cstdio>
 #include <stdlib.h>
+
 DigitalOut SN74LV595_DIN(p14);
 DigitalOut SN74LV595_RCLK(p13);
 DigitalOut SN74LV595_CLR(p12);
 DigitalOut SN74LV595_CLK(p11);
-DigitalIn  SN74LV595_DOUT(p10); //Shift register output, so normally it is not connected.
+DigitalIn  SN74LV595_DOUT(p10);
 AnalogIn ain(p20);
-Serial pc(USBTX, USBRX, 921600);
-const int SERIAL_SPEED = 921600; //fastest
 
-//DAAD
-SPI spiDAAD(p5, p6, p7);     // mosi(master output slave input, miso(not connected), clock signal
-DigitalOut DA_sync(p8);        //chip select for AD5452
-DigitalOut AD_cs(p9);        //chip select for AD7276
+RawSerial pc(USBTX, USBRX);
 
-//Other I/O
+SPI spiDAAD(p5, p6, p7);
+DigitalOut DA_sync(p8);
+DigitalOut AD_cs(p9);
 BusOut myleds(LED1, LED2, LED3, LED4);
 
-// stimulation mode
-#define DA_TEST 0xFA //sinusoidal wave mode to test DA
+#define DA_TEST 'z'
 #define pile 'a'
 #define doby 'b'
 #define satin 'c'
 #define fleece 'd'
 #define microfiber 'e'
 #define organdy 'f'
-int Mode = DA_TEST;
+char Mode = DA_TEST;
 
 const int ELECTRODE_NUM = 16;
 const int PC_MBED_STIM_PATTERN = 0xFF;
@@ -149,38 +146,34 @@ void DAADinit()
 
 void SerialReceiveInterrupt()
 {
-    int rcv, i;
+    int i;
     unsigned char data[255];
     int datai[255];
 
-    rcv = getchar();
+    char rcv = pc.getc();
+    pc.putc(rcv);
+
     if (rcv == DA_TEST) {
         Mode = DA_TEST;
         myleds = 1;
     } else if (rcv == pile) {
-        //freq = 180.0;
         Mode = pile;
         myleds = 2;
     } else if (rcv == doby) {
-        //freq = 20.0;
         Mode = doby;
         myleds = 2;
     } else if (rcv == satin) {
-        //freq = 12.0;
         delta_flag = false;
         delta_oldflag = false;
         Mode = satin;
         myleds = 2;
     } else if (rcv == fleece) {
-        //freq = 50.0;
         Mode = fleece;
         myleds = 2;
     } else if (rcv == microfiber) {
-        //freq = 440.0;
         Mode = microfiber;
         myleds = 2;
     } else if (rcv == organdy) {
-        //freq = 125.0;
         delta_flag = false;
         delta_oldflag = false;
         Mode = organdy;
@@ -189,37 +182,43 @@ void SerialReceiveInterrupt()
         amp -= 10.0;
         if(amp <0.0)
             amp = 0.0;
+        myleds = 4;
     } else if(rcv == 'h') {
         amp += 10.0;
         if(amp > 500.0)
             amp = 500.0;
+        myleds = 4;
     } else if(rcv == 'i') {
         freq += 5.0;
         if(freq > 500.0)
             freq = 500.0;
+        myleds = 4;
     } else if(rcv == 'j') {
         freq -= 5.0;
         if(freq < 0.0)
             freq = 0.0;
+        myleds = 4;
     } 
 }
 
 float SerialLeap()
 {
     float speed = 0.0;
-    char leap[4];
 
-    leap[0] = getchar();
-    leap[1] = getchar();
-    leap[2] = getchar();
-    leap[3] = getchar();
+    if (pc.readable()) {
+        char leap[4]; // 受信用バッファー
 
-    // leapをfloat型に変換
-    float receivedSpeed;
-    memcpy(&receivedSpeed, leap, sizeof(float));
+        leap[0] = pc.getc();
+        leap[1] = pc.getc();
+        leap[2] = pc.getc();
+        leap[3] = pc.getc();
 
-    speed = receivedSpeed;
-    
+        // leapをfloat型に変換
+        float receivedSpeed;
+        memcpy(&receivedSpeed, leap, sizeof(float));
+
+        speed = receivedSpeed;
+    }
     return speed;
 }
 
@@ -237,25 +236,26 @@ int main()
     DAADinit();
     SN74LV595Init(ELECTRODE_NUM);
     pc.attach(SerialReceiveInterrupt);
+    pc.baud(921600);
     timer.start();
 
     for (int t = 0; t < 8; t++) {
         myleds = 1 << (t % 4);
-        wait(0.05);
+        wait_us(50000);       
     }
+
     myleds = 1;
 
     while (1) {
-        cntrspeed = SerialLeap();
-    }
 
-    while (1) {
+        cntrspeed = SerialLeap();
+
         if (Mode == DA_TEST) {
-           t = (double)timer.read_us() * 0.000001;
+            t = (double)timer.read_us() * 0.000001;
 			AD = DAAD((short)(200.0 * (1.0 + sin(2.0 * 3.1415926 * freq * t))));
         } else if (Mode == pile) {
             t = (double)timer.read_us() * 0.000001;
-            AD = DAAD((short)(amp * (1.0 + sin(2.0 * 3.1415926 * freq * t))));
+            AD = DAAD((short)(amp * (1.0 + sin(2.0 * 3.1415926 * freq * cntrspeed))));
             prevmode = Mode;
         } else if (Mode == doby) {
             t = (double)timer.read_us() * 0.000001;
@@ -313,7 +313,6 @@ int main()
                 AD = DAAD((short) amp * 2);
             }
             delta_oldflag = delta_flag;
-
             prevmode = Mode;
         } else if (Mode == organdy) {
             t = (double)timer.read_us() * 0.000001;
@@ -351,7 +350,6 @@ int main()
                 AD = DAAD((short) amp * 2);
             }
             delta_oldflag = delta_flag;
-
             prevmode = Mode;
         }
     }
