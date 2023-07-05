@@ -8,7 +8,11 @@ float SerialLeap()
 
     if (pc.readable()) {
         char leap[4]; // 受信用バッファー
-        pc.read(leap, 4); // 4バイト受信
+
+        leap[0] = pc.getc();
+        leap[1] = pc.getc();
+        leap[2] = pc.getc();
+        leap[3] = pc.getc();
 
         // leapをfloat型に変換
         float receivedSpeed;
@@ -28,7 +32,10 @@ float SerialLeap()
         bigEndianBytes[3] = speedBytes[0];
 
         // バイト列をPCに送信
-        pc.write(bigEndianBytes, sizeof(float));
+        pc.putc(bigEndianBytes[0]);
+        pc.putc(bigEndianBytes[1]);
+        pc.putc(bigEndianBytes[2]);
+        pc.putc(bigEndianBytes[3]);
     }
 
     return speed;
