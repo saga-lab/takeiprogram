@@ -7,15 +7,13 @@ import controlP5.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-Controller leapController = new Controller();
-
 //communitation definition
 Serial myPort;
 String portname = "/dev/cu.usbmodem11402";
 
-final int DA_TEST = 0xFA; //sinusoidal wave mode to test DA
+final char DA_TEST = 'z'; //sinusoidal wave mode to test DA
 
-int Mode = DA_TEST;
+char Mode = DA_TEST;
 
 //stimulation and measurement data
 final int ELECTRODE_NUM = 16;
@@ -39,6 +37,8 @@ int freq_num = 23;
 
 ControlP5 Button;
 PImage toby, pile, satin, fleece, microfiber, organdy, select;
+
+Controller leapController = new Controller();
 
 void settings() {
   size(1400, 800); 
@@ -77,8 +77,8 @@ void draw() {
   noFill();
   
   if(select_num == 1){
-    ono_text = "pile"; //Zara-zara
-    waveType = "SINE WAVE, 100Hz"; //SINE WAVE 180Hz
+    ono_text = "pile";
+    waveType = "SINE WAVE, 100Hz";
     
     rect(20, 40, 140, 140);
     
@@ -86,8 +86,8 @@ void draw() {
   }
   
   else if(select_num == 2){
-    ono_text = "doby"; //Gotsu-gotsu
-    waveType = "SAWTOOTH, 60Hz"; //SQUARE WAVE 20Hz 
+    ono_text = "doby";
+    waveType = "SAWTOOTH, 60Hz";
 
     rect(20, 190, 140, 140);
 
@@ -95,8 +95,8 @@ void draw() {
   }
   
   else if(select_num == 3){
-    ono_text = "satin"; //Putsu-Putsu
-    waveType = "SINE WAVE, 300Hz"; //DELTA Function 12Hz
+    ono_text = "satin";
+    waveType = "SINE WAVE, 300Hz";
     
     rect(170, 40, 140, 140);
 
@@ -104,8 +104,8 @@ void draw() {
   }
   
   else if(select_num == 4){
-    ono_text = "fleece"; //Gowa-gowa
-    waveType = "SQUARE WAVE, 130Hz"; //SINE WAVE 50Hz
+    ono_text = "fleece";
+    waveType = "SQUARE WAVE, 130Hz";
 
     rect(170, 190, 140, 140);
 
@@ -113,8 +113,8 @@ void draw() {
   }
   
   else if(select_num == 5){
-    ono_text = "microfiber"; //Tsuru-tsuru
-    waveType = "DELTA Function, 120Hz"; //SINE WAVE 440Hz
+    ono_text = "microfiber";
+    waveType = "DELTA Function, 120Hz";
     
     rect(320, 40, 140, 140);
 
@@ -122,8 +122,8 @@ void draw() {
   }
   
   else if(select_num == 6){
-    ono_text = "organdy"; //Jori-jori
-    waveType = "DELTA Function, 180Hz"; //DELTA Function 125Hz
+    ono_text = "organdy";
+    waveType = "DELTA Function, 180Hz";
     
     rect(320, 190, 140, 140);
     
@@ -174,91 +174,89 @@ void draw() {
       }  
     }
   }
-  LeapMotion();
+  //LeapMotion();
+  //receive();
 }
 
-void LeapMotion() { //mbedから受け取った値を処理
-  while (myPort.available() > 0) {
-    byte[] leap = new byte[4];
-    myPort.readBytes(leap);
-    cntrspeed = ByteBuffer.wrap(leap).getFloat();
-    //println("Freq:" + freq + " Vol:" + amp + " Speed:" + cntrspeed);
-  }
-}
+//void LeapMotion() { //mbedから受け取った値を処理
+//  while (myPort.available() > 0) {
+//    byte[] leap = new byte[4];
+//    myPort.readBytes(leap);
+//    cntrspeed = ByteBuffer.wrap(leap).getFloat();
+//    println("Freq:" + freq + " Vol:" + amp + " Speed:" + cntrspeed);
+//  }
+//}
 
-void keyPressed() { 
+//void receive() {
+//  while (myPort.available() > 0) {
+//    char receivedChar = myPort.readChar(); // 文字を受信
+//    println("Received char: " + receivedChar); // 受け取った文字をコンソールに表示
+//  }
+//}
+
+void keyPressed() {
   if (key == '1') {
     println("DA test using sine wave");
-    myPort.write(DA_TEST);
-    myPort.write(0xFA);
-    println("Freq:" + freq + " Vol:" + amp + " Speed:" + cntrspeed);
+    myPort.write('z');
     Mode = DA_TEST;
   } else if(keyCode == DOWN) {
     amp -= 10;
     if(amp < 0)
       amp = 0;
-    println("Freq:" + freq + " Vol:" + amp + " Speed:" + cntrspeed);
     myPort.write('g');
-  } else if(keyCode == UP){
+  } else if(keyCode == UP) {
     amp += 10;
     if(amp > 300)
       amp = 300;
-    println("Freq:" + freq + " Vol:" + amp + " Speed:" + cntrspeed);
     myPort.write('h');
-  } else if(keyCode == RIGHT){
+  } else if(keyCode == RIGHT) {
     freq += 5;
     if(freq > 500)
       freq = 500;
-    println("Freq:" + freq + " Vol:" + amp + " Speed:" + cntrspeed);
     myPort.write('i');
-  } else if(keyCode == LEFT){
+  } else if(keyCode == LEFT) {
     freq -= 5;
     if(freq < 0)
       freq = 0;
-    println("Freq:" + freq + " Vol:" + amp + " Speed:" + cntrspeed);
     myPort.write('j');
-  } else if (key == ESC){
-    for(int i=0; i<30; i++)
+  } else if (key == ESC) {
     myPort.write('k');
     exit();
   }
 }
 
 void mouseClicked(){
-  //クリックすると、ここの処理が実行
-  //マウスの位置情報を取得　mouseX, mouseY
-  if(mouseX >= 0 + 20 && mouseX <= 160 && mouseY >= 0 + 40 && mouseY <= 180){
+  if(mouseX >= 0 + 20 && mouseX <= 160 && mouseY >= 0 + 40 && mouseY <= 180) {
     select_num = 1;
     println ("Mouse Click");
     myPort.write('a');
     Mode = 'a';
-  }else if(mouseX >= 0 + 20 && mouseX <= 160 && mouseY >= 150 + 40 && mouseY <= 330){
+  } else if(mouseX >= 0 + 20 && mouseX <= 160 && mouseY >= 150 + 40 && mouseY <= 330) {
     select_num = 2;
     println ("Mouse Click2");
     myPort.write('b');
     Mode = 'b';
-  }else if(mouseX >= 150 + 20 && mouseX <= 340 && mouseY >= 0 + 40 && mouseY <= 180){
+  } else if(mouseX >= 150 + 20 && mouseX <= 340 && mouseY >= 0 + 40 && mouseY <= 180) {
     select_num = 3;
     println ("Mouse Click3");
     myPort.write('c');
     Mode = 'c';
-  }else if(mouseX >= 150 + 20 && mouseX <= 340 && mouseY >= 150 + 40 && mouseY <= 330){
+  } else if(mouseX >= 150 + 20 && mouseX <= 340 && mouseY >= 150 + 40 && mouseY <= 330) {
     select_num = 4;
     println ("Mouse Click4");
     myPort.write('d');
     Mode = 'd';
-  }else if(mouseX >= 300 + 20 && mouseX <= 460 && mouseY >= 0 + 40 && mouseY <= 180){
+  } else if(mouseX >= 300 + 20 && mouseX <= 460 && mouseY >= 0 + 40 && mouseY <= 180) {
     select_num = 5;
     println ("Mouse Click5");
     myPort.write('e');
     Mode = 'e';
-  }else if(mouseX >= 300 + 20 && mouseX <= 460 && mouseY >= 150 + 40 && mouseY <= 330){
+  } else if(mouseX >= 300 + 20 && mouseX <= 460 && mouseY >= 150 + 40 && mouseY <= 330) {
     select_num = 6;
     println ("Mouse Click6");
     myPort.write('f');
     Mode = 'f';
-  }
-  else{
+  } else {
     select_num = 0;
     println ("Copymode");
     myPort.write('l');
