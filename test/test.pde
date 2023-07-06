@@ -11,9 +11,9 @@ import java.nio.ByteOrder;
 Serial myPort;
 String portname = "/dev/cu.usbmodem11402";
 
-final char DA_TEST = 'z'; //sinusoidal wave mode to test DA
+final int DA_TEST = -1; //sinusoidal wave mode to test DA
 
-char Mode = DA_TEST;
+int Mode = DA_TEST;
 
 //stimulation and measurement data
 final int ELECTRODE_NUM = 16;
@@ -76,61 +76,37 @@ void draw() {
   strokeWeight(10);
   noFill();
   
-  if(select_num == 1){
+  if(select_num == 1) {
     ono_text = "pile";
     waveType = "SINE WAVE, 100Hz";
-    
     rect(20, 40, 140, 140);
-    
     fill(0);
-  }
-  
-  else if(select_num == 2){
+  } else if(select_num == 2) {
     ono_text = "doby";
     waveType = "SAWTOOTH, 60Hz";
-
     rect(20, 190, 140, 140);
-
     fill(0);
-  }
-  
-  else if(select_num == 3){
+  } else if(select_num == 3) {
     ono_text = "satin";
-    waveType = "SINE WAVE, 300Hz";
-    
+    waveType = "SINE WAVE, 300Hz";    
     rect(170, 40, 140, 140);
-
     fill(0);
-  }
-  
-  else if(select_num == 4){
+  } else if(select_num == 4) {
     ono_text = "fleece";
     waveType = "SQUARE WAVE, 130Hz";
-
     rect(170, 190, 140, 140);
-
     fill(0);
-  }
-  
-  else if(select_num == 5){
+  } else if(select_num == 5) {
     ono_text = "microfiber";
-    waveType = "DELTA Function, 120Hz";
-    
+    waveType = "DELTA Function, 120Hz";    
     rect(320, 40, 140, 140);
-
     fill(0);
-  }
-  
-  else if(select_num == 6){
+  } else if(select_num == 6) {
     ono_text = "organdy";
-    waveType = "DELTA Function, 180Hz";
-    
-    rect(320, 190, 140, 140);
-    
+    waveType = "DELTA Function, 180Hz";    
+    rect(320, 190, 140, 140);    
     fill(0);
-  }
-  
-  else{
+  } else {
     ono_text = "";
     waveType = "";
     freq = 0;
@@ -165,62 +141,67 @@ void draw() {
         text("speed: " + speed, 700, 110);
         
         ellipse(finger.tipPosition().getX() + (width / 2) + 300, (height * 2 / 3) - finger.tipPosition().getY() + 100, 5, 5);
+
+        //byte[] cntr = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(speed).array();
         
-        //speedをバイト配列に変換
-        byte[] cntr = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(speed).array();
-        
-        // 1つのbyte配列をmbedに送信する
+        int cntr = int(speed);
         myPort.write(cntr);
       }  
     }
   }
-  //LeapMotion();
-  //receive();
+  LeapMotion();
+  //receivechar();
+  //receiveint();
 }
 
-//void LeapMotion() { //mbedから受け取った値を処理
-//  while (myPort.available() > 0) {
-//    byte[] leap = new byte[4];
-//    myPort.readBytes(leap);
-//    cntrspeed = ByteBuffer.wrap(leap).getFloat();
-//    println("Freq:" + freq + " Vol:" + amp + " Speed:" + cntrspeed);
-//  }
-//}
+void LeapMotion() { //mbedから受け取った値を処理
+  while (myPort.available() > 0) {
+    cntrspeed = myPort.read();
+    println("Speed:" + cntrspeed);
+  }
+}
 
-//void receive() {
-//  while (myPort.available() > 0) {
-//    char receivedChar = myPort.readChar(); // 文字を受信
-//    println("Received char: " + receivedChar); // 受け取った文字をコンソールに表示
-//  }
-//}
+void receivechar() {
+  while (myPort.available() > 0) {
+    char receivedChar = myPort.readChar(); // 文字を受信
+    println("Received char: " + receivedChar); // 受け取った文字をコンソールに表示
+  }
+}
+
+void receiveint() {
+  while (myPort.available() > 0) {
+    int receivedInt = myPort.read() - 256; // 文字を受信
+    println("Received char: " + receivedInt); // 受け取った文字をコンソールに表示
+  }
+}
 
 void keyPressed() {
   if (key == '1') {
     println("DA test using sine wave");
-    myPort.write('z');
+    myPort.write(-1);
     Mode = DA_TEST;
   } else if(keyCode == DOWN) {
     amp -= 10;
     if(amp < 0)
       amp = 0;
-    myPort.write('g');
+    myPort.write(-9);
   } else if(keyCode == UP) {
     amp += 10;
     if(amp > 300)
       amp = 300;
-    myPort.write('h');
+    myPort.write(-10);
   } else if(keyCode == RIGHT) {
     freq += 5;
     if(freq > 500)
       freq = 500;
-    myPort.write('i');
+    myPort.write(-11);
   } else if(keyCode == LEFT) {
     freq -= 5;
     if(freq < 0)
       freq = 0;
-    myPort.write('j');
+    myPort.write(-12);
   } else if (key == ESC) {
-    myPort.write('k');
+    myPort.write(-13);
     exit();
   }
 }
@@ -229,37 +210,37 @@ void mouseClicked(){
   if(mouseX >= 0 + 20 && mouseX <= 160 && mouseY >= 0 + 40 && mouseY <= 180) {
     select_num = 1;
     println ("Mouse Click");
-    myPort.write('a');
-    Mode = 'a';
+    myPort.write(-2);
+    Mode = -2;
   } else if(mouseX >= 0 + 20 && mouseX <= 160 && mouseY >= 150 + 40 && mouseY <= 330) {
     select_num = 2;
     println ("Mouse Click2");
-    myPort.write('b');
-    Mode = 'b';
+    myPort.write(-3);
+    Mode = -3;
   } else if(mouseX >= 150 + 20 && mouseX <= 340 && mouseY >= 0 + 40 && mouseY <= 180) {
     select_num = 3;
     println ("Mouse Click3");
-    myPort.write('c');
-    Mode = 'c';
+    myPort.write(-4);
+    Mode = -4;
   } else if(mouseX >= 150 + 20 && mouseX <= 340 && mouseY >= 150 + 40 && mouseY <= 330) {
     select_num = 4;
     println ("Mouse Click4");
-    myPort.write('d');
-    Mode = 'd';
+    myPort.write(-5);
+    Mode = -5;
   } else if(mouseX >= 300 + 20 && mouseX <= 460 && mouseY >= 0 + 40 && mouseY <= 180) {
     select_num = 5;
     println ("Mouse Click5");
-    myPort.write('e');
-    Mode = 'e';
+    myPort.write(-6);
+    Mode = -6;
   } else if(mouseX >= 300 + 20 && mouseX <= 460 && mouseY >= 150 + 40 && mouseY <= 330) {
     select_num = 6;
     println ("Mouse Click6");
-    myPort.write('f');
-    Mode = 'f';
+    myPort.write(-7);
+    Mode = -7;
   } else {
     select_num = 0;
     println ("Copymode");
-    myPort.write('l');
-    Mode = 'l';
+    myPort.write(-8);
+    Mode = -8;
   }
 }
