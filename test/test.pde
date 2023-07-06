@@ -7,21 +7,17 @@ import controlP5.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-//communitation definition
 Serial myPort;
 String portname = "/dev/cu.usbmodem11402";
 
-final int DA_TEST = -1; //sinusoidal wave mode to test DA
-
+final int DA_TEST = -1;
 int Mode = DA_TEST;
 
-//stimulation and measurement data
 final int ELECTRODE_NUM = 16;
 int[] Impedance = new int[ELECTRODE_NUM];
 int[] StimPattern = new int[ELECTRODE_NUM];
 int[] TwoDStimPattern = new int[ELECTRODE_NUM + 1];
 
-//graphical attributes
 final int WINDOW_SIZE_X = 400;
 final int WINDOW_SIZE_Y = 400;
 final int X_OFFSET = 10;
@@ -115,25 +111,22 @@ void draw() {
   fill(0);
   textSize(30);
   text("Please select texture", 100, 360);
-  textSize(30);
   text("Onomatopie : " + ono_text, 20, 450);
   text("Waveform     : " + waveType, 20, 500);
-
   text("Frequency    : " + freq + " Hz", 20, 550);
   text("Amplitude  : " + amp + " V", 20, 600);
-  textSize(30);
   
   //Leap Motion
   textSize(20);
   Frame frame = leapController.frame();
  
-  for(Hand hand : frame.hands()) { //各手の情報を取得するために追加
+  for(Hand hand : frame.hands()) {
     for(Finger finger : hand.fingers()) {
-      if(finger.type().toString() == "TYPE_INDEX") { // 人差し指
-        float vx = finger.tipVelocity().getX() / 10; // x方向
-        float vy = finger.tipVelocity().getY() / 10; // y方向
-        float vz = finger.tipVelocity().getZ() / 10; // z方向
-        float speed = sqrt(vx*vx + vy*vy + vz*vz); // ベクトルの大きさを計算
+      if(finger.type().toString() == "TYPE_INDEX") {
+        float vx = finger.tipVelocity().getX() / 10;
+        float vy = finger.tipVelocity().getY() / 10;
+        float vz = finger.tipVelocity().getZ() / 10;
+        float speed = sqrt(vx*vx + vy*vy + vz*vz) / 10;
         
         text("x: " + vx, 700, 50);
         text("y: " + vy, 700, 70);
@@ -141,20 +134,18 @@ void draw() {
         text("speed: " + speed, 700, 110);
         
         ellipse(finger.tipPosition().getX() + (width / 2) + 300, (height * 2 / 3) - finger.tipPosition().getY() + 100, 5, 5);
-
-        //byte[] cntr = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(speed).array();
         
         int cntr = int(speed);
         myPort.write(cntr);
       }  
     }
   }
-  LeapMotion();
+  //LeapMotion();
   //receivechar();
   //receiveint();
 }
 
-void LeapMotion() { //mbedから受け取った値を処理
+void LeapMotion() {
   while (myPort.available() > 0) {
     cntrspeed = myPort.read();
     println("Speed:" + cntrspeed);
@@ -163,15 +154,15 @@ void LeapMotion() { //mbedから受け取った値を処理
 
 void receivechar() {
   while (myPort.available() > 0) {
-    char receivedChar = myPort.readChar(); // 文字を受信
-    println("Received char: " + receivedChar); // 受け取った文字をコンソールに表示
+    char receivedChar = myPort.readChar();
+    println("Received char: " + receivedChar);
   }
 }
 
 void receiveint() {
   while (myPort.available() > 0) {
-    int receivedInt = myPort.read() - 256; // 文字を受信
-    println("Received char: " + receivedInt); // 受け取った文字をコンソールに表示
+    int receivedInt = myPort.read() - 256;
+    println("Received char: " + receivedInt);
   }
 }
 
