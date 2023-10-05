@@ -26,7 +26,6 @@ final int BAR_WIDTH = 10;
 
 double freq = 0.0;
 int amp = 0;
-float cntrspeed = 0.0;
 
 int select_num = 0;
 int freq_num = 23;
@@ -113,8 +112,8 @@ void draw() {
   text("Please select texture", 100, 360);
   text("Onomatopie : " + ono_text, 20, 450);
   text("Waveform     : " + waveType, 20, 500);
-  text("Frequency    : " + freq + " Hz", 20, 550);
-  text("Amplitude  : " + amp + " V", 20, 600);
+  //text("Frequency    : " + freq + " Hz", 20, 550);
+  text("Amplitude  : " + amp + " V", 20, 550);
   
   //Leap Motion
   textSize(20);
@@ -123,19 +122,13 @@ void draw() {
   for(Hand hand : frame.hands()) {
     for(Finger finger : hand.fingers()) {
       if(finger.type().toString() == "TYPE_INDEX") {
-        float vx = finger.tipVelocity().getX() / 10;
-        float vy = finger.tipVelocity().getY() / 10;
-        float vz = finger.tipVelocity().getZ() / 10;
-        float speed = sqrt(vx*vx + vy*vy + vz*vz) / 10;
+        float vx = abs(finger.tipVelocity().getX()) / 10;
         
         text("x: " + vx, 700, 50);
-        text("y: " + vy, 700, 70);
-        text("z: " + vz, 700, 90);
-        text("speed: " + speed, 700, 110);
         
         ellipse(finger.tipPosition().getX() + (width / 2) + 300, (height * 2 / 3) - finger.tipPosition().getY() + 100, 5, 5);
         
-        int cntr = int(speed);
+        int cntr = int(vx);
         myPort.write(cntr);
       }  
     }
@@ -147,7 +140,7 @@ void draw() {
 
 void LeapMotion() {
   while (myPort.available() > 0) {
-    cntrspeed = myPort.read();
+    int cntrspeed = myPort.read();
     println("Speed:" + cntrspeed);
   }
 }
@@ -178,19 +171,9 @@ void keyPressed() {
     myPort.write(-9);
   } else if(keyCode == UP) {
     amp += 10;
-    if(amp > 300)
-      amp = 300;
+    if(amp > 500)
+      amp = 500;
     myPort.write(-10);
-  } else if(keyCode == RIGHT) {
-    freq += 5;
-    if(freq > 500)
-      freq = 500;
-    myPort.write(-11);
-  } else if(keyCode == LEFT) {
-    freq -= 5;
-    if(freq < 0)
-      freq = 0;
-    myPort.write(-12);
   } else if (key == ESC) {
     myPort.write(-13);
     exit();
