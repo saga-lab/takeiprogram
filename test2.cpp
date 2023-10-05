@@ -34,7 +34,7 @@ short impedance[ELECTRODE_NUM] = { 0 };
 short twod_stim_pattern[ELECTRODE_NUM] = { 0 };
 double freq = 0.0;
 double amp = 0.0;
-int speed = 0;
+int vx = 0;
 Timer timer;
 
 bool AccessDeny = false;
@@ -142,9 +142,8 @@ void DAADinit()
 
 int SerialLeap()
 {
-    speed = pc.getc();
-    // pc.putc(speed);
-    return speed;
+    vx = pc.getc();
+    return vx;
 }
 
 void SerialReceive()
@@ -191,16 +190,6 @@ void SerialReceive()
             if (amp > 500.0)
                 amp = 500.0;
             myleds = 4;
-        } else if (rcv == -11) {
-            freq += 5.0;
-            if (freq > 500.0)
-                freq = 500.0;
-            myleds = 4;
-        } else if (rcv == -12) {
-            freq -= 5.0;
-            if (freq < 0.0)
-                freq = 0.0;
-            myleds = 4;
         } 
     } else {
         SerialLeap();
@@ -216,6 +205,8 @@ int main()
     short AD;
 
     int prevmode;
+
+    float v = 0.0;
 
     DAADinit();
     SN74LV595Init(ELECTRODE_NUM);
@@ -233,14 +224,19 @@ int main()
     while (1) {
         if (Mode == DA_TEST) {
             t = (double)timer.read_us() * 0.000001;
+            freq = 200.0;
 			AD = DAAD((short)(200.0 * (1.0 + sin(2.0 * 3.1415926 * freq * t))));
         } else if (Mode == pile) {
             t = (double)timer.read_us() * 0.000001;
-            AD = DAAD((short)(amp * (1.0 + sin(2.0 * 3.1415926 * freq * t * speed))));
+            freq = 100.0;
+            v = 5.5925696;
+            AD = DAAD((short)(amp * (1.0 + sin(2.0 * 3.1415926 * freq * (vx / v) * t))));
             prevmode = Mode;
         } else if (Mode == doby) {
             t = (double)timer.read_us() * 0.000001;
-            int d = (int)(t * 100 * freq * speed) % 100;
+            freq = 60.0;
+            v = 5.3475115;
+            int d = (int)(t * 100 * freq * (vx / v)) % 100;
             double dd = (double)d / 100;
             dd *= 2 * amp;
             if (dd > 600)
@@ -249,18 +245,24 @@ int main()
             prevmode = Mode;
         } else if (Mode == satin) {
             t = (double)timer.read_us() * 0.000001;
-            AD = DAAD((short)(amp * (1.0 + sin(2.0 * 3.1415926 * freq * t * speed)))); 
+            freq = 300.0;
+            v = 5.8459970;
+            AD = DAAD((short)(amp * (1.0 + sin(2.0 * 3.1415926 * freq * t * (vx / v))))); 
             prevmode = Mode;
         } else if (Mode == fleece) {
             t = (double)timer.read_us() * 0.000001;
-            if (sin(2.0 * 3.1415926 * freq * t * speed) > 0.0)
+            freq = 130.0;
+            v = 3.7587665;
+            if (sin(2.0 * 3.1415926 * freq * t * (vx / v)) > 0.0)
                 AD = DAAD((short)amp * 2);
             else
                 AD = DAAD((short)0);
             prevmode = Mode;
         } else if (Mode == microfiber) {
             t = (double)timer.read_us() * 0.000001;
-            if (sin(2.0 * 3.1415926 * freq * t * speed) > 0.995)
+            freq = 120.0;
+            v = 3.7022014;
+            if (sin(2.0 * 3.1415926 * freq * t * (vx / v)) > 0.995)
                 delta_flag = true;
             else
                 delta_flag = false;
@@ -297,7 +299,9 @@ int main()
             prevmode = Mode;
         } else if (Mode == organdy) {
             t = (double)timer.read_us() * 0.000001;
-            if (sin(2.0 * 3.1415926 * freq * t * speed) > 0.995) 
+            freq = 180.0;
+            v = 5.6202903;
+            if (sin(2.0 * 3.1415926 * freq * t * (vx / v)) > 0.995)
                 delta_flag = true;
             else
                 delta_flag = false;
