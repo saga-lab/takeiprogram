@@ -10,7 +10,7 @@ import java.nio.ByteOrder;
 Serial myPort;
 String portname = "/dev/cu.usbmodem11402";
 
-final int DA_TEST = -1;
+final int DA_TEST = 256;
 int Mode = DA_TEST;
 
 final int ELECTRODE_NUM = 16;
@@ -112,8 +112,8 @@ void draw() {
   text("Please select texture", 100, 360);
   text("Onomatopie : " + ono_text, 20, 450);
   text("Waveform     : " + waveType, 20, 500);
-  //text("Frequency    : " + freq + " Hz", 20, 550);
-  text("Amplitude  : " + amp + " V", 20, 550);
+  text("Frequency    : " + freq + " Hz", 20, 550);
+  text("Amplitude  : " + amp + " V", 20, 600);
   
   //Leap Motion
   textSize(20);
@@ -122,7 +122,7 @@ void draw() {
   for(Hand hand : frame.hands()) {
     for(Finger finger : hand.fingers()) {
       if(finger.type().toString() == "TYPE_INDEX") {
-        float vx = abs(finger.tipVelocity().getX()) / 10;
+        float vx = abs(finger.tipVelocity().getX());
         
         text("x: " + vx, 700, 50);
         
@@ -162,20 +162,30 @@ void receiveint() {
 void keyPressed() {
   if (key == '1') {
     println("DA test using sine wave");
-    myPort.write(-1);
+    myPort.write(256);
     Mode = DA_TEST;
   } else if(keyCode == DOWN) {
     amp -= 10;
     if(amp < 0)
       amp = 0;
-    myPort.write(-9);
+    myPort.write(248);
   } else if(keyCode == UP) {
     amp += 10;
-    if(amp > 500)
-      amp = 500;
-    myPort.write(-10);
+    if(amp > 300)
+      amp = 300;
+    myPort.write(247);
+  } else if(keyCode == RIGHT) {
+    freq += 5;
+    if(freq > 500)
+      freq = 500;
+    myPort.write(246);
+  } else if(keyCode == LEFT) {
+    freq -= 5;
+    if(freq < 0)
+      freq = 0;
+    myPort.write(245);
   } else if (key == ESC) {
-    myPort.write(-13);
+    myPort.write(244);
     exit();
   }
 }
@@ -184,37 +194,37 @@ void mouseClicked(){
   if(mouseX >= 0 + 20 && mouseX <= 160 && mouseY >= 0 + 40 && mouseY <= 180) {
     select_num = 1;
     println ("Mouse Click");
-    myPort.write(-2);
-    Mode = -2;
+    myPort.write(255);
+    Mode = 255;
   } else if(mouseX >= 0 + 20 && mouseX <= 160 && mouseY >= 150 + 40 && mouseY <= 330) {
     select_num = 2;
     println ("Mouse Click2");
-    myPort.write(-3);
-    Mode = -3;
+    myPort.write(254);
+    Mode = 254;
   } else if(mouseX >= 150 + 20 && mouseX <= 340 && mouseY >= 0 + 40 && mouseY <= 180) {
     select_num = 3;
     println ("Mouse Click3");
-    myPort.write(-4);
-    Mode = -4;
+    myPort.write(253);
+    Mode = 253;
   } else if(mouseX >= 150 + 20 && mouseX <= 340 && mouseY >= 150 + 40 && mouseY <= 330) {
     select_num = 4;
     println ("Mouse Click4");
-    myPort.write(-5);
-    Mode = -5;
+    myPort.write(252);
+    Mode = 252;
   } else if(mouseX >= 300 + 20 && mouseX <= 460 && mouseY >= 0 + 40 && mouseY <= 180) {
     select_num = 5;
     println ("Mouse Click5");
-    myPort.write(-6);
-    Mode = -6;
+    myPort.write(251);
+    Mode = 251;
   } else if(mouseX >= 300 + 20 && mouseX <= 460 && mouseY >= 150 + 40 && mouseY <= 330) {
     select_num = 6;
     println ("Mouse Click6");
-    myPort.write(-7);
-    Mode = -7;
+    myPort.write(250);
+    Mode = 250;
   } else {
     select_num = 0;
     println ("Copymode");
-    myPort.write(-8);
-    Mode = -8;
+    myPort.write(249);
+    Mode = 249;
   }
 }
