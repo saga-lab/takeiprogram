@@ -16,13 +16,13 @@ DigitalOut DA_sync(p8);
 DigitalOut AD_cs(p9);
 BusOut myleds(LED1, LED2, LED3, LED4);
 
-const int DA_TEST = -1;
-const int pile = -2;
-const int doby = -3;
-const int satin = -4;
-const int fleece = -5;
-const int microfiber = -6;
-const int organdy = -7;
+const int DA_TEST = 256;
+const int pile = 255;
+const int doby = 254;
+const int satin = 253;
+const int fleece = 252;
+const int microfiber = 251;
+const int organdy = 250;
 int Mode = DA_TEST;
 
 const int ELECTRODE_NUM = 16;
@@ -152,45 +152,53 @@ void SerialReceive()
     unsigned char data[255];
     int datai[255];
 
-    int rcv = pc.getc() - 256;
-
-    if (rcv >= -14 && rcv <= 0) {
-        if (rcv == DA_TEST) {
-            Mode = DA_TEST;
-            myleds = 1;
-        } else if (rcv == pile) {
-            Mode = pile;
-            myleds = 2;
-        } else if (rcv == doby) {
-            Mode = doby;
-            myleds = 2;
-        } else if (rcv == satin) {
-            delta_flag = false;
-            delta_oldflag = false;
-            Mode = satin;
-            myleds = 2;
-        } else if (rcv == fleece) {
-            Mode = fleece;
-            myleds = 2;
-        } else if (rcv == microfiber) {
-            Mode = microfiber;
-            myleds = 2;
-        } else if (rcv == organdy) {
-            delta_flag = false;
-            delta_oldflag = false;
-            Mode = organdy;
-            myleds = 2;
-        } else if (rcv == -9) {
-            amp -= 10.0;
-            if (amp <0.0)
-                amp = 0.0;
-            myleds = 4;
-        } else if (rcv == -10) {
-            amp += 10.0;
-            if (amp > 500.0)
-                amp = 500.0;
-            myleds = 4;
-        } 
+    int rcv = pc.getc();
+  
+    if (rcv == DA_TEST) {
+        Mode = DA_TEST;
+        myleds = 1;
+    } else if (rcv == pile) {
+        Mode = pile;
+        myleds = 2;
+    } else if (rcv == doby) {
+        Mode = doby;
+        myleds = 2;
+    } else if (rcv == satin) {
+        delta_flag = false;
+        delta_oldflag = false;
+        Mode = satin;
+        myleds = 2;
+    } else if (rcv == fleece) {
+        Mode = fleece;
+        myleds = 2;
+    } else if (rcv == microfiber) {
+        Mode = microfiber;
+        myleds = 2;
+    } else if (rcv == organdy) {
+        delta_flag = false;
+        delta_oldflag = false;
+        Mode = organdy;
+        myleds = 2;
+    } else if (rcv == 248) {
+        amp -= 10.0;
+        if (amp <0.0)
+            amp = 0.0;
+        myleds = 4;
+    } else if (rcv == 247) {
+        amp += 10.0;
+        if (amp > 300.0)
+            amp = 300.0;
+        myleds = 4;
+    } else if (rcv == 246) {
+        freq += 5.0;
+        if (freq > 500.0)
+            freq = 500.0;
+        myleds = 8;
+    } else if (rcv == 245) {
+        freq -= 5.0;
+        if (freq < 0.0)
+            freq = 0.0;
+        myleds = 8;
     } else {
         SerialLeap();
     }
@@ -224,19 +232,16 @@ int main()
     while (1) {
         if (Mode == DA_TEST) {
             t = (double)timer.read_us() * 0.000001;
-            freq = 200.0;
-			AD = DAAD((short)(200.0 * (1.0 + sin(2.0 * 3.1415926 * freq * t))));
+			AD = DAAD((short)(200.0 * (1.0 + sin(2.0 * 3.1415926 * 200.0 * t))));
         } else if (Mode == pile) {
             t = (double)timer.read_us() * 0.000001;
-            freq = 100.0;
-            v = 5.5925696;
-            AD = DAAD((short)(amp * (1.0 + sin(2.0 * 3.1415926 * freq * (vx / v) * t))));
+            v = 55.925696;
+            AD = DAAD((short)(amp * (1.0 + sin(2.0 * 3.1415926 * 100.0 * (vx / v) * t))));
             prevmode = Mode;
         } else if (Mode == doby) {
             t = (double)timer.read_us() * 0.000001;
-            freq = 60.0;
-            v = 5.3475115;
-            int d = (int)(t * 100 * freq * (vx / v)) % 100;
+            v = 53.475115;
+            int d = (int)(t * 100 * 60.0 * (vx / v)) % 100;
             double dd = (double)d / 100;
             dd *= 2 * amp;
             if (dd > 600)
@@ -245,24 +250,21 @@ int main()
             prevmode = Mode;
         } else if (Mode == satin) {
             t = (double)timer.read_us() * 0.000001;
-            freq = 300.0;
-            v = 5.8459970;
-            AD = DAAD((short)(amp * (1.0 + sin(2.0 * 3.1415926 * freq * t * (vx / v))))); 
+            v = 58.459970;
+            AD = DAAD((short)(amp * (1.0 + sin(2.0 * 3.1415926 * 300.0 * t * (vx / v))))); 
             prevmode = Mode;
         } else if (Mode == fleece) {
             t = (double)timer.read_us() * 0.000001;
-            freq = 130.0;
-            v = 3.7587665;
-            if (sin(2.0 * 3.1415926 * freq * t * (vx / v)) > 0.0)
+            v = 37.587665;
+            if (sin(2.0 * 3.1415926 * 130.0 * t * (vx / v)) > 0.0)
                 AD = DAAD((short)amp * 2);
             else
                 AD = DAAD((short)0);
             prevmode = Mode;
         } else if (Mode == microfiber) {
             t = (double)timer.read_us() * 0.000001;
-            freq = 120.0;
-            v = 3.7022014;
-            if (sin(2.0 * 3.1415926 * freq * t * (vx / v)) > 0.995)
+            v = 37.022014;
+            if (sin(2.0 * 3.1415926 * 120.0 * t * (vx / v)) > 0.995)
                 delta_flag = true;
             else
                 delta_flag = false;
@@ -299,9 +301,8 @@ int main()
             prevmode = Mode;
         } else if (Mode == organdy) {
             t = (double)timer.read_us() * 0.000001;
-            freq = 180.0;
-            v = 5.6202903;
-            if (sin(2.0 * 3.1415926 * freq * t * (vx / v)) > 0.995)
+            v = 56.202903;
+            if (sin(2.0 * 3.1415926 * 180.0 * t * (vx / v)) > 0.995)
                 delta_flag = true;
             else
                 delta_flag = false;
