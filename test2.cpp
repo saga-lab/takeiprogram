@@ -34,7 +34,7 @@ short impedance[ELECTRODE_NUM] = { 0 };
 short twod_stim_pattern[ELECTRODE_NUM] = { 0 };
 double freq = 0.0;
 double amp = 0.0;
-int vx = 0;
+float vx = 0.0;
 Timer timer;
 
 bool AccessDeny = false;
@@ -140,9 +140,18 @@ void DAADinit()
     spiDAAD.frequency(48000000);
 }
 
-int SerialLeap()
+float SerialLeap()
 {
-    vx = pc.getc();
+    char receivedBytes[4];
+    // 4バイトのデータを受信
+    for (int i = 0; i < 4; ++i) {
+        receivedBytes[i] = pc.getc();
+    }
+
+    // 4バイトをfloatに変換
+    float vx;
+    memcpy(&vx, receivedBytes, sizeof(float));
+
     return vx;
 }
 
@@ -186,8 +195,8 @@ void SerialReceive()
         myleds = 4;
     } else if (rcv == 247) {
         amp += 10.0;
-        if (amp > 300.0)
-            amp = 300.0;
+        if (amp > 500.0)
+            amp = 500.0;
         myleds = 4;
     } else if (rcv == 246) {
         freq += 5.0;
