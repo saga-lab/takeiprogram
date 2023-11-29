@@ -10,7 +10,7 @@ import java.nio.ByteOrder;
 Serial myPort;
 String portname = "/dev/cu.usbmodem11402";
 
-final int DA_TEST = 256;
+final int DA_TEST = -1;
 int Mode = DA_TEST;
 
 final int ELECTRODE_NUM = 16;
@@ -122,19 +122,21 @@ void draw() {
   for(Hand hand : frame.hands()) {
     for(Finger finger : hand.fingers()) {
       if(finger.type().toString() == "TYPE_INDEX") {
-        float vx = abs(finger.tipVelocity().getX());
+        float vx = abs(finger.tipVelocity().getX()) / 10;
         
         text("x: " + vx, 700, 50);
         
         ellipse(finger.tipPosition().getX() + (width / 2) + 300, (height * 2 / 3) - finger.tipPosition().getY() + 100, 5, 5);
         
-        int cntr = int(vx);
+        byte[] cntr = new byte[4];
+        ByteBuffer.wrap(cntr).order(ByteOrder.LITTLE_ENDIAN).putFloat(vx);
         myPort.write(cntr);
       }  
     }
   }
   //LeapMotion();
   //receivechar();
+  //receiveFloat();
   //receiveint();
 }
 
@@ -149,6 +151,24 @@ void receivechar() {
   while (myPort.available() > 0) {
     char receivedChar = myPort.readChar();
     println("Received char: " + receivedChar);
+  }
+}
+
+void receiveFloat() {
+  while (myPort.available() >= 4) {
+    byte[] byteArray = new byte[4];
+
+    // データを読み取り
+    for (int i = 0; i < 4; i++) {
+      byteArray[i] = (byte) myPort.read();
+    }
+
+    // ByteBufferを使用してビッグエンディアンのfloatに変換
+    ByteBuffer buffer = ByteBuffer.wrap(byteArray).order(ByteOrder.BIG_ENDIAN);
+    float receivedFloat = buffer.getFloat();
+
+    // 受信したデータを表示
+    println("Received float: " + receivedFloat);
   }
 }
 
@@ -171,8 +191,8 @@ void keyPressed() {
     myPort.write(248);
   } else if(keyCode == UP) {
     amp += 10;
-    if(amp > 300)
-      amp = 300;
+    if(amp > 500)
+      amp = 500;
     myPort.write(247);
   } else if(keyCode == RIGHT) {
     freq += 5;
@@ -194,7 +214,7 @@ void mouseClicked(){
   if(mouseX >= 0 + 20 && mouseX <= 160 && mouseY >= 0 + 40 && mouseY <= 180) {
     select_num = 1;
     println ("Mouse Click");
-    myPort.write(255);
+    myPort.write(byte(255)); // 255をバイト型で送信
     Mode = 255;
   } else if(mouseX >= 0 + 20 && mouseX <= 160 && mouseY >= 150 + 40 && mouseY <= 330) {
     select_num = 2;
