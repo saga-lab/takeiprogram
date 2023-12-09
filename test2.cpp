@@ -142,11 +142,13 @@ void DAADinit()
 
 float SerialLeap()
 {
-    char receivedBytes[4];
-    // 4バイトのデータを受信
-    for (int i = 0; i < 4; ++i) {
-        receivedBytes[i] = pc.getc();
-    }
+     char receivedBytes[4];
+    // // 4バイトのデータを受信
+    // for (int i = 0; i < 4; ++i) {
+    //     receivedBytes[i] = pc.getc();
+    // }
+
+    pc.read(receivedBytes, 4);
 
     // 4バイトをfloatに変換
     float vx;
